@@ -1,21 +1,22 @@
 "use client";
 
-import { PixelArtCanvas } from "@/components/canvas";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect } from "react";
+import { testDB } from "@/db/tauri-sqlite-db";
+
+import { useDatabase } from "@/hooks/use-database";
+
 
 const HomePage = () => {
-  const [showLine, setShowLine] = useState(true);
+  const db = useDatabase();
+  useEffect(() => {
+    console.log("here");
+    if (db)
+      testDB(db);
+  }, [db]);
 
   return (
     <div>
-      <Button onClick={() => setShowLine(!showLine)}>Toggle line</Button>
-      <PixelArtCanvas
-        height={16}
-        width={16} 
-        pixelSize={30}
-        gridLinesView={showLine}
-      />
+
     </div>
   );
 };
