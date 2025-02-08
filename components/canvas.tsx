@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, JSX, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useColourToolStore } from "@/store/colour-tool-store";
 
 interface PixelArtMakerProps {
   color?: string;
@@ -9,6 +10,7 @@ interface PixelArtMakerProps {
   height: number;
   pixelSize: number;
   gridLinesView?: boolean;
+  gridDataPrev?: string[][];
 }
 
 
@@ -23,11 +25,11 @@ const cloneGrid = (grid: string[][]): string[][] => {
 };
 
 export const PixelArtCanvas = ({
-  color = "#000000",
   width,
   height,
   pixelSize,
   gridLinesView = false,
+  gridDataPrev
 }: PixelArtMakerProps): JSX.Element => {
   // The canvas ref.
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -36,7 +38,7 @@ export const PixelArtCanvas = ({
 
   // The grid data holds the color for each cell.
   // gridData.current is a 2D array of size [height][width]
-  const gridData = useRef<string[][]>(createEmptyGrid(width, height));
+  const gridData = useRef<string[][]>(gridDataPrev ? gridDataPrev : createEmptyGrid(width, height));
 
   // Undo and redo stacks store snapshots of the grid.
   const undoStack = useRef<string[][][]>([]);
@@ -44,6 +46,9 @@ export const PixelArtCanvas = ({
 
   // A flag to indicate whether the user is drawing.
   const isDrawing = useRef<boolean>(false);
+
+  // Colour Tool Store
+  const cts = useColourToolStore();
 
   // Zoom state of canvas
   const [zoom, setZoom] = useState(1);
@@ -88,6 +93,17 @@ export const PixelArtCanvas = ({
       }
     }
   };
+
+  const bucketBrushHandler = (col: number, row: number, cellColour: string, fillColour: string) => {
+    if (col < 0 || col > width - 1 || row < 0 || row > height - 1 || gridData.current[row][col] !== cellColour) return;
+
+    updateCell(col, row, fillColour);
+
+    bucketBrushHandler(col - 1, row, cellColour, fillColour);
+    bucketBrushHandler(col + 1, row, cellColour, fillColour);
+    bucketBrushHandler(col, row - 1, cellColour, fillColour);
+    bucketBrushHandler(col, row + 1, cellColour, fillColour);
+  }
 
   // Update the color of a specific cell in the grid and draw it.
   const updateCell = (col: number, row: number, newColor: string) => {
@@ -158,16 +174,32 @@ export const PixelArtCanvas = ({
     undoStack.current.push(cloneGrid(gridData.current));
     // Clear redo stack.
     redoStack.current = [];
-    isDrawing.current = true;
-    const { col, row } = getCellCoordinates(event);
-    updateCell(col, row, color);
+    // Check what brush user has selected
+    if (cts.currentTool === "pen") {
+      isDrawing.current = true;
+      const { col, row } = getCellCoordinates(event);
+      updateCell(col, row, cts.currentColour);
+    }
+    if (cts.currentTool === "bucket") {
+      const { col, row } = getCellCoordinates(event);
+      if (gridData.current[row][col] !== cts.currentColour)
+        bucketBrushHandler(col, row, gridData.current[row][col], cts.currentColour);
+    }
+    if (cts.currentTool === "eraser") {
+      isDrawing.current = true;
+      const { col, row } = getCellCoordinates(event);
+      updateCell(col, row, "#ffffff");
+    }
   };
 
   // Handle mouse move: if drawing, update the corresponding cell.
   const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing.current) return;
     const { col, row } = getCellCoordinates(event);
-    updateCell(col, row, color);
+    if (cts.currentTool === "pen")
+      updateCell(col, row, cts.currentColour);
+    if (cts.currentTool === "eraser")
+      updateCell(col, row, "#ffffff");
   };
 
   // End drawing.
