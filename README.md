@@ -16,6 +16,7 @@ Now you can run the app using the following command:
 ```
 npm run tauri dev
 ```
+Before building, change the default package name ``` com.tauri.dev ``` to your choice in ``` tauri.conf.json ```
 Build using 
 ```
 npm run tauri build
