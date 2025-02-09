@@ -7,12 +7,10 @@ import { PixelArtCanvas } from "@/components/canvas";
 import { Button } from "@/components/ui/button";
 import { useColourToolStore } from "@/store/colour-tool-store";
 
-
 const HomePage = () => {
   const db = useDatabase();
   const cts = useColourToolStore();
   useEffect(() => {
-    console.log("here");
     // if (db)
       // testDB(db);
   }, [db]);
