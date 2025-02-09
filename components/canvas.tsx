@@ -182,8 +182,10 @@ export const PixelArtCanvas = ({
     }
     if (cts.currentTool === "bucket") {
       const { col, row } = getCellCoordinates(event);
-      if (gridData.current[row][col] !== cts.currentColour)
+      if (gridData.current[row][col] !== cts.currentColour) {
         bucketBrushHandler(col, row, gridData.current[row][col], cts.currentColour);
+        drawCanvas();
+      }
     }
     if (cts.currentTool === "eraser") {
       isDrawing.current = true;
@@ -259,7 +261,7 @@ export const PixelArtCanvas = ({
       event.preventDefault();
       redo();
     }
-  }, []);
+  }, [undo, redo]);
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);

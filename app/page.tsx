@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { testDB } from "@/db/tauri-sqlite-db";
 
 import { useDatabase } from "@/hooks/use-database";
 import { PixelArtCanvas } from "@/components/canvas";
@@ -14,8 +13,8 @@ const HomePage = () => {
   const cts = useColourToolStore();
   useEffect(() => {
     console.log("here");
-    if (db)
-      testDB(db);
+    // if (db)
+      // testDB(db);
   }, [db]);
 
   return (
