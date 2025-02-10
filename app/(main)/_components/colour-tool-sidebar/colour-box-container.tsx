@@ -12,7 +12,7 @@ export const ColourBoxContainer = ({
 }: ColourBoxContainerProps) => {
     return (
         <div
-            className="w-full bg-[#3f3f3f] h-[300px] p-2 overflow-auto colour-box-container rounded-md"
+            className="w-full bg-[#333333] h-[300px] p-2 overflow-auto colour-box-container rounded-md"
             onClick={handleColourBoxClick}
         >
             <div className="flex flex-wrap gap-1 items-start">

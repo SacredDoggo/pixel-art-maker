@@ -1,5 +1,6 @@
 "use client";
 
+import { ColourPickerModal } from "@/components/colour-picker-modal";
 import { useEffect, useState } from "react";
 
 export const ModalProvider = () => {
@@ -12,6 +13,7 @@ export const ModalProvider = () => {
     if (!mounted) return <></>;
     return (
         <>
+            <ColourPickerModal />
         </>
     );
 }
