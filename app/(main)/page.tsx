@@ -16,7 +16,7 @@ const HomePage = () => {
   }, [db]);
 
   return (
-    <div>
+    <div className="bg-[#333333] h-full w-full">
       <Button onClick={() => cts.setCurrentTool("pen")}>Pen</Button>
       <Button onClick={() => cts.setCurrentTool("bucket")}>Bucket</Button>
       <Button onClick={() => cts.setCurrentTool("eraser")}>Eraser</Button>

@@ -32,12 +32,18 @@ export const ColourToolSidebar = () => {
         }
     };
 
+    const handleAddNewColourToPalette = async () => {
+        insertColourPalette(db, cts.currentColour)
+            .then((data) => { setColourPalette(data) });
+    }
+
     return (
         <aside className="h-full w-[200px] p-1 overflow-auto space-y-1 bg-[#1f1f1f] z-50 relative">
-            <div className="h-10 w-full p-1">
-                <Button onClick={() => { insertColourPalette(db, "#ffffffff").then((data) => { setColourPalette(data) }) }}>Hello</Button>
+            <div className="h-10 w-full">
+                <Button
+                    onClick={handleAddNewColourToPalette}>Hello</Button>
             </div>
-            <CurrentColourAndColourSelector 
+            <CurrentColourAndColourSelector
                 colour={cts.currentColour}
             />
             <ColourBoxContainer

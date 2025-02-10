@@ -16,7 +16,7 @@ interface PixelArtMakerProps {
 
 const createEmptyGrid = (width: number, height: number): string[][] => {
   return Array.from({ length: height }, () =>
-    Array.from({ length: width }, () => "#ffffff")
+    Array.from({ length: width }, () => "#ffffff00")
   );
 };
 
@@ -190,7 +190,7 @@ export const PixelArtCanvas = ({
     if (cts.currentTool === "eraser") {
       isDrawing.current = true;
       const { col, row } = getCellCoordinates(event);
-      updateCell(col, row, "#ffffff");
+      updateCell(col, row, "#ffffff00");
     }
   };
 
@@ -201,7 +201,7 @@ export const PixelArtCanvas = ({
     if (cts.currentTool === "pen")
       updateCell(col, row, cts.currentColour);
     if (cts.currentTool === "eraser")
-      updateCell(col, row, "#ffffff");
+      updateCell(col, row, "#ffffff00");
   };
 
   // End drawing.
@@ -317,7 +317,7 @@ export const PixelArtCanvas = ({
       </div>
       <canvas
         ref={canvasRef}
-        className="border border-gray-300 cursor-crosshair"
+        className="border border-gray-300 cursor-crosshair bg-white"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

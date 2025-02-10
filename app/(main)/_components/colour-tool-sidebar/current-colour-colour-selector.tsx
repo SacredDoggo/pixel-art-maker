@@ -1,6 +1,6 @@
 "use client";
 
-import { useModalVisibilityStore } from "@/store/modal-visibility-store";
+import { useColourPickerStore } from "@/store/colour-picker-store";
 import { useState } from "react";
 
 interface CurrentColourAndColourSelectorProps {
@@ -10,16 +10,16 @@ interface CurrentColourAndColourSelectorProps {
 export const CurrentColourAndColourSelector = ({
     colour
 }: CurrentColourAndColourSelectorProps) => {
-    const mvs = useModalVisibilityStore();
+    const cps = useColourPickerStore();
 
     return (
-        <div className="w-full h-10 p-2 flex items-center bg-[#3f3f3f] rounded-md relative">
+        <div className="w-full h-10 p-2 flex items-center bg-[#333333] rounded-md relative">
             <span className="font-medium font-mono ">{colour}</span>
             <div
                 className="h-6 flex-1 ml-2 cursor-pointer rounded-md border-2"
                 style={{ backgroundColor: colour }}
                 role="button"
-                onClick={mvs.openColourPickerModal}
+                onClick={cps.openColourPickerModal}
             />
         </div>
     );

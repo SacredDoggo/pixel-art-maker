@@ -4,7 +4,7 @@ import { ColourToolSidebar } from "./_components/colour-tool-sidebar/colour-tool
 
 const MainLayout = ({ children } : {children: React.ReactNode}) => {
     return (
-        <div className="flex h-full w-full bg-[#333333]">
+        <div className="flex h-full w-full bg-[#1f1f1f]">
             <ColourToolSidebar />
             {children}
         </div>
