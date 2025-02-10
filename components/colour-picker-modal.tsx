@@ -23,7 +23,7 @@ export const ColourPickerModal = () => {
 
     // Handle when the user accepts the color
     const handleAccept = () => {
-        cts.setCurrentColour(cps.lastColourState);
+        cts.setCurrentColour(cps.lastColourState.toUpperCase());
         cps.closeColourPickerModal();
         // Add your logic here (e.g., save the color to state or API)
     };
