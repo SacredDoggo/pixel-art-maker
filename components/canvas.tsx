@@ -170,6 +170,7 @@ export const PixelArtCanvas = ({
 
   // Handle mouse down: start drawing and save grid snapshot.
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (event.button != 0) return;
     // Save a snapshot of the current grid for undo.
     undoStack.current.push(cloneGrid(gridData.current));
     // Clear redo stack.

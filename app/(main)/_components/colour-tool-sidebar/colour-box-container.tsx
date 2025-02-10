@@ -15,10 +15,12 @@ export const ColourBoxContainer = ({
             className="w-full bg-[#333333] h-[300px] p-2 overflow-auto colour-box-container rounded-md"
             onClick={handleColourBoxClick}
         >
+            <span className="text-xs">Local</span>
             <div className="flex flex-wrap gap-1 items-start">
                 {colourPalette?.map((colour) => (
                     <ColourBox
                         key={colour.id}
+                        id={colour.id}
                         colour={colour.colour}
                     />
                 ))}

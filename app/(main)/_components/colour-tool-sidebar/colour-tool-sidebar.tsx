@@ -26,9 +26,15 @@ export const ColourToolSidebar = () => {
     // Handle colour click using Event Delegation
     const handleColourBoxClick = (e: React.MouseEvent<HTMLDivElement>) => {
         const target = (e.target as HTMLElement).closest(".colour-box");
-        if (target && target.getAttribute("data-colour") != null) {
+        if (!target) return;
+
+        if (e.button == 1 && target.getAttribute("data-colour") != null) {
             const colour = target.getAttribute("data-colour");
             if (colour) cts.setCurrentColour(colour);
+        }
+
+        if (e.button == 2 && target.getAttribute("data-colour-id") != null) {
+            const colour_id = target.getAttribute("data-colour-id");
         }
     };
 
@@ -38,14 +44,18 @@ export const ColourToolSidebar = () => {
     }
 
     return (
-        <aside className="h-full w-[200px] p-1 overflow-auto space-y-1 bg-[#1f1f1f] z-50 relative">
-            <div className="h-10 w-full">
-                <Button
-                    onClick={handleAddNewColourToPalette}>Hello</Button>
-            </div>
+        <aside className="h-full w-[300px] p-1 overflow-auto space-y-1 bg-[#1f1f1f] z-50 relative">
             <CurrentColourAndColourSelector
                 colour={cts.currentColour}
             />
+            <div className="w-full">
+                <Button
+                    className="w-full h-6 bg-blue-500 rounded-md text-xs"
+                    onClick={handleAddNewColourToPalette}
+                >
+                    Add to local palette
+                </Button>
+            </div>
             <ColourBoxContainer
                 handleColourBoxClick={handleColourBoxClick}
                 colourPalette={colourPalette}
