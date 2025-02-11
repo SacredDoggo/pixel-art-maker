@@ -2,7 +2,7 @@ import { toast } from "sonner"
 
 interface makeToastInterface {
     type: "success" | "error" | "loading" | "promise" | "info";
-    promise?: Promise<any>;
+    promise?: Promise<unknown>;
     message: string;
     description?: string;
     closeButton?: boolean;

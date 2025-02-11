@@ -158,6 +158,7 @@ export const insertColourPalette = async (
   }
 };
 
+// TODO: Handle Filter parameters
 export const getColourPalette = async (
   db: Database | null,
   project_id?: number,
@@ -196,3 +197,52 @@ export const getColourPalette = async (
     return [];
   }
 };
+
+export const editColourPalette = async (
+  db: Database | null, 
+  colour_id: number, 
+  newColour: string
+): Promise<ColourPalette[]> => {
+  if (!db) return [];
+  try {
+    const tableOK = await tableStatus(db, { colour_palettes: true });
+
+    if (!tableOK) throw new Error("Table creation or reading error");
+
+    await db.execute("UPDATE colour_palette SET colour=? where id=?", [newColour, colour_id]);
+
+    const result: ColourPalette[] = await db.select('SELECT * FROM colour_palette');
+    return result;
+  } catch (error) {
+    makeToast({
+      type: "error",
+      message: "Database operation error encountered",
+    });
+    console.error('Database error:', error);
+
+    return [];
+  }
+
+};
+
+export const deleteColour = async (db: Database | null, colour_id: number): Promise<ColourPalette[]> => {
+  if (!db) return [];
+  try {
+    const tableOK = await tableStatus(db, { colour_palettes: true });
+
+    if (!tableOK) throw new Error("Table creation or reading error");
+
+    await db.execute("DELETE FROM colour_palette where id=?", [colour_id]);
+
+    const result: ColourPalette[] = await db.select('SELECT * FROM colour_palette');
+    return result;
+  } catch (error) {
+    makeToast({
+      type: "error",
+      message: "Database operation error encountered",
+    });
+    console.error('Database error:', error);
+
+    return [];
+  }
+}

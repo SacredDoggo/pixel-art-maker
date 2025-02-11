@@ -1,7 +1,6 @@
 "use client";
 
 import { useColourPickerStore } from "@/store/colour-picker-store";
-import { useState } from "react";
 
 interface CurrentColourAndColourSelectorProps {
     colour: string;

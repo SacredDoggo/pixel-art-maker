@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { ColorResult, PhotoshopPicker } from "react-color";
 
 import { useColourPickerStore } from "@/store/colour-picker-store";
@@ -10,8 +9,11 @@ export const ColourPickerModal = () => {
     const cps = useColourPickerStore();
     const cts = useColourToolStore();
 
+    // cps.setLastColourState(cps.editColour ?? "#00000000");
+
     // Close the color picker
     const handleClose = () => {
+        cps.resetColourPicker();
         cps.setLastColourState(cts.currentColour);
         cps.closeColourPickerModal();
     };
@@ -19,11 +21,15 @@ export const ColourPickerModal = () => {
     // Handle color change
     const handleChange = (newColor: ColorResult) => {
         cps.setLastColourState(newColor.hex);
+        if (cps.mode == "editing") cps.setNewColour(newColor.hex);
     };
 
     // Handle when the user accepts the color
     const handleAccept = () => {
-        cts.setCurrentColour(cps.lastColourState.toUpperCase());
+        if (cps.mode == "current") cts.setCurrentColour(cps.lastColourState.toUpperCase());
+        else if (cps.mode == "editing") {            
+            cps.handleEdit?.();
+        }            
         cps.closeColourPickerModal();
         // Add your logic here (e.g., save the color to state or API)
     };
@@ -44,7 +50,7 @@ export const ColourPickerModal = () => {
                             onAccept={handleAccept}
                             onCancel={handleCancel}
                             onChange={handleChange}
-                            header="Choose Color"
+                            header={cps.label}
                         />
                     </div>
                 </div>

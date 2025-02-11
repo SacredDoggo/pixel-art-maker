@@ -1,4 +1,9 @@
-import { Tooltip, TooltipArrow, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
+import {
+    Tooltip,
+    TooltipArrow,
+    TooltipContent,
+    TooltipTrigger
+} from "@radix-ui/react-tooltip";
 
 interface ColourBoxProps {
     id: number;

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { ColourToolSidebar } from "./_components/colour-tool-sidebar/colour-tool-sidebar";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
