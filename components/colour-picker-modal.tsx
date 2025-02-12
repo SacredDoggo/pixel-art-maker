@@ -30,7 +30,7 @@ export const ColourPickerModal = () => {
         else if (cps.mode == "editing") {            
             cps.handleEdit?.();
         }            
-        cps.closeColourPickerModal();
+        handleClose();
         // Add your logic here (e.g., save the color to state or API)
     };
 

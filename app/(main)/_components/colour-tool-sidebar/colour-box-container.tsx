@@ -1,6 +1,6 @@
 "use client";
 
-import { ColourPalette, deleteColour, editColourPalette } from "@/db/tauri-sqlite-db";
+import { deleteColour, editColourPalette } from "@/db/colour-palette";
 import { ColourBox } from "./colour-box";
 import { useColourToolStore } from "@/store/colour-tool-store";
 import { Dispatch, SetStateAction, useState } from "react";

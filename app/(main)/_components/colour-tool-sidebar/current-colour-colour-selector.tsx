@@ -11,6 +11,11 @@ export const CurrentColourAndColourSelector = ({
 }: CurrentColourAndColourSelectorProps) => {
     const cps = useColourPickerStore();
 
+    const handleCurrentColourClick = () => {
+        cps.resetColourPicker();
+        cps.openColourPickerModal();
+    }
+
     return (
         <div className="w-full h-10 p-2 flex items-center bg-[#333333] rounded-md relative">
             <span className="font-medium font-mono ">{colour}</span>
@@ -18,7 +23,7 @@ export const CurrentColourAndColourSelector = ({
                 className="h-6 flex-1 ml-2 cursor-pointer rounded-md border-2"
                 style={{ backgroundColor: colour }}
                 role="button"
-                onClick={cps.openColourPickerModal}
+                onClick={handleCurrentColourClick}
             />
         </div>
     );

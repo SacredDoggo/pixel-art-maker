@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useColourToolStore } from "./colour-tool-store";
 
 type ColourPickerStore = {
   label: string;
@@ -55,6 +56,7 @@ export const useColourPickerStore = create<ColourPickerStore>((set, get) => ({
 
   resetColourPicker: () => {
     set({
+      lastColourState: useColourToolStore.getState().currentColour,
       newColour: null,
       editColour: null,
       editColourId: null,

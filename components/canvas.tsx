@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, JSX, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useColourToolStore } from "@/store/colour-tool-store";
+import { createEmptyGrid } from "@/lib/utils";
 
 interface PixelArtMakerProps {
   color?: string;
@@ -13,12 +14,6 @@ interface PixelArtMakerProps {
   gridDataPrev?: string[][];
 }
 
-
-const createEmptyGrid = (width: number, height: number): string[][] => {
-  return Array.from({ length: height }, () =>
-    Array.from({ length: width }, () => "#ffffff00")
-  );
-};
 
 const cloneGrid = (grid: string[][]): string[][] => {
   return grid.map((row) => [...row]);

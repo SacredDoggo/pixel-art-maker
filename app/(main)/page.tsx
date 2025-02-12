@@ -3,30 +3,23 @@
 import { useEffect } from "react";
 
 import { useDatabase } from "@/hooks/use-database";
-import { PixelArtCanvas } from "@/components/canvas";
-import { Button } from "@/components/ui/button";
-import { useColourToolStore } from "@/store/colour-tool-store";
+import { useProjectStore } from "@/store/use-project-store";
+
+import { HomeScreen } from "./_components/home-screen/home-screen";
+import { ProjectScreen } from "./_components/project-screen/project-screen";
 
 const HomePage = () => {
   const db = useDatabase();
-  const cts = useColourToolStore();
+  const ps = useProjectStore();
+
   useEffect(() => {
-    // if (db)
-      // testDB(db);
   }, [db]);
 
   return (
-    <div className="bg-[#333333] h-full w-full">
-      <Button onClick={() => cts.setCurrentTool("pen")}>Pen</Button>
-      <Button onClick={() => cts.setCurrentTool("bucket")}>Bucket</Button>
-      <Button onClick={() => cts.setCurrentTool("eraser")}>Eraser</Button>
-      <PixelArtCanvas 
-        height={32}
-        width={32}
-        pixelSize={10}
-        gridLinesView
-      />
-    </div>
+    <>
+    {/* TODO */}
+      {ps.currentProject ? <ProjectScreen /> : <HomeScreen />}
+    </>
   );
 };
 

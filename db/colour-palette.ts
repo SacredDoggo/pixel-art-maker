@@ -1,75 +1,7 @@
 import { makeToast } from '@/lib/toast-manager';
 import Database from '@tauri-apps/plugin-sql';
-
-// Example function to test the database
-export const testDB = async (db: Database | undefined) => {
-  if (!db) return;
-
-  try {
-    await db.execute('CREATE TABLE IF NOT EXISTS todos(id INTEGER PRIMARY KEY ASC, title TEXT, status TEXT)');
-    await db.execute('INSERT INTO todos (title, status) VALUES (?, ?)', ['Learn Tauri', 'pending']);
-    const result = await db.select('SELECT * FROM todos');
-  } catch (error) {
-    console.error('Database error:', error);
-  }
-};
-
-// Check Table status
-const tableStatus = async (
-  db: Database | null,
-  {
-    projects,
-    colour_palettes,
-    palette_groups
-  }: {
-    projects?: boolean
-    colour_palettes?: boolean,
-    palette_groups?: boolean
-  }
-): Promise<boolean> => {
-  if (!db) return false;
-
-  try {
-    if (projects) {
-      const p = await db.execute(`CREATE TABLE IF NOT EXISTS project (
-        id INTEGER PRIMARY KEY, 
-        project_name TEXT NOT NULL UNIQUE
-      );`);
-    }
-    if (colour_palettes) {
-      const cp = await db.execute(`CREATE TABLE IF NOT EXISTS colour_palette (
-        id INTEGER PRIMARY KEY,
-        colour TEXT,
-        project_id INTEGER,
-        palette_group_id INTEGER,
-        FOREIGN KEY (project_id) REFERENCES project(id),
-        FOREIGN KEY (palette_group_id) REFERENCES palette_group(id)
-      );`);
-    }
-    if (palette_groups) {
-      const cp = await db.execute(`CREATE TABLE IF NOT EXISTS palette_group (
-        id INTEGER PRIMARY KEY,
-        group_name TEXT NOT NULL UNIQUE
-      );`);
-    }
-    return true;
-  } catch (error) {
-    makeToast({
-      type: "error",
-      message: "Database operation error encountered",
-    });
-    console.error('Database error:', error);
-    return false;
-  }
-};
-
-// Colour Palette 
-export interface ColourPalette {
-  id: number;
-  colour: string;
-  project_id?: number;
-  palette_group_id?: number;
-}
+import { tableStatus } from './table';
+import { insertProject } from './project';
 
 export const insertColourPalette = async (
   db: Database | null,
@@ -85,7 +17,6 @@ export const insertColourPalette = async (
 
       if (!tableOK) throw new Error("Table creation or reading error");
 
-      await db.execute("INSERT OR IGNORE INTO project (project_name) VALUES (?));", [project_name]);
       await db.execute("INSERT OR IGNORE INTO palette_group (group_name) VALUES (?);", [palette_group_name]);
       await db.execute(`INSERT INTO colour_palette (colour, project_id, palette_group_id)
         VALUES (
@@ -161,6 +92,7 @@ export const insertColourPalette = async (
 // TODO: Handle Filter parameters
 export const getColourPalette = async (
   db: Database | null,
+  id?: number,
   project_id?: number,
   project_name?: string,
   palette_group_id?: number,

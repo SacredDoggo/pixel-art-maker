@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDatabase } from "@/hooks/use-database";
 import { useColourToolStore } from "@/store/colour-tool-store"
-import { ColourPalette, getColourPalette, insertColourPalette } from "@/db/tauri-sqlite-db";
+import { getColourPalette, insertColourPalette } from "@/db/colour-palette";
 import { ColourBoxContainer } from "./colour-box-container";
 import { CurrentColourAndColourSelector } from "./current-colour-colour-selector";
 
