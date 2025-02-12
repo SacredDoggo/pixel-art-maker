@@ -21,7 +21,7 @@ export const ColourToolSidebar = () => {
 
     useEffect(() => {
         loadColourPalette();
-    }, [db, loadColourPalette]);
+    }, [db]);
 
     const handleAddNewColourToPalette = async () => {
         insertColourPalette(db, cts.currentColour)

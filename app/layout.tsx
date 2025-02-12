@@ -35,7 +35,7 @@ export default function RootLayout({
       >
         <main className="h-full w-full pt-7 dark:bg-[#1f1f1f]">
           <TooltipProvider delayDuration={300}>
-            {/* <Navbar /> */}
+            <Navbar />
             {children}
             <Toaster
               position="bottom-center"
