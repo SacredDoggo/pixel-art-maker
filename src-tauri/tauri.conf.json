@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "pixel-art-editor",
+  "productName": "pixel-art-maker",
   "version": "0.1.0",
-  "identifier": "com.pixelarteditor.sacred",
+  "identifier": "com.pixelartmaker.sacred",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "Pixel Art Editor",
+        "title": "Pixel Art Maker",
         "width": 800,
         "height": 600,
         "resizable": true,
