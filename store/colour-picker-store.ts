@@ -1,7 +1,3 @@
-import { editColourPalette } from "@/db/tauri-sqlite-db";
-import { useDatabase } from "@/hooks/use-database";
-import { makeToast } from "@/lib/toast-manager";
-import Database from "@tauri-apps/plugin-sql";
 import { create } from "zustand";
 
 type ColourPickerStore = {
