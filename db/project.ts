@@ -1,4 +1,4 @@
-import Database from "@tauri-apps/plugin-sql"
+import Database, { QueryResult } from "@tauri-apps/plugin-sql"
 import { tableStatus } from "./table";
 import { makeToast } from "@/lib/toast-manager";
 import { createEmptyGrid } from "@/lib/utils";
@@ -9,8 +9,8 @@ export const insertProject = async (
     height: number,
     width: number,
     grid_data?: string[][]
-) => {
-    if (!db) return;
+): Promise<Project | null> => {
+    if (!db) return null;
 
     try {
         const tableOK = await tableStatus(db, { projects: true });
@@ -18,16 +18,21 @@ export const insertProject = async (
 
         const grid = grid_data ?? createEmptyGrid(width, height);
 
-        await db.execute(
-            "INSERT INTO projects (project_name, height, width, grid_data) VALUES (?, ?, ?, ?);",
+        const qr: QueryResult = await db.execute(
+            "INSERT INTO project (project_name, height, width, grid_data) VALUES (?, ?, ?, ?);",
             [project_name, height, width, JSON.stringify(grid)]
         );
+
+        const result: Project = await db.select("SELECT * FROM project WHERE id=?", [qr.lastInsertId]);
+        return result;
     } catch (error) {
         makeToast({
             type: "error",
             message: "Database operation error encountered",
         });
         console.error('Database error:', error);
+
+        return null;
     }
 
 };

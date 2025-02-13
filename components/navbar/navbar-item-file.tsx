@@ -7,8 +7,11 @@ import {
     DropdownMenuTrigger
 } from "@radix-ui/react-dropdown-menu";
 import { Item } from "./menu-item-component";
+import { useProjectStore } from "@/store/use-project-store";
 
 export const NavbarItemFile = () => {
+    const ps = useProjectStore();
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -22,7 +25,7 @@ export const NavbarItemFile = () => {
                 >
                     <Item
                         label="New Project"
-                        handleClick={() => { }}
+                        handleClick={ps.openNewProjectModalOpen}
                     />
                     <Item
                         label="Open Project"

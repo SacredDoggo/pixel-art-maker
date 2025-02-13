@@ -1,7 +1,7 @@
 export const ProjectScreen = () => {
     return (
         <div>
-            Home
+            Project
         </div>
     );
 }

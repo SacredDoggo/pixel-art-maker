@@ -19,7 +19,7 @@ export const tableStatus = async (
 
     try {
         if (projects) {
-            await db.execute(`CREATE TABLE IF NOT EXISTS projects (
+            await db.execute(`CREATE TABLE IF NOT EXISTS project (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 project_name TEXT NOT NULL,
                 height INTEGER NOT NULL,

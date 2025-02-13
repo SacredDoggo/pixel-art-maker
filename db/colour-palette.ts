@@ -21,7 +21,7 @@ export const insertColourPalette = async (
       await db.execute(`INSERT INTO colour_palette (colour, project_id, palette_group_id)
         VALUES (
         ?, 
-        (SELECT id FROM projects WHERE project_name = ?),
+        (SELECT id FROM project WHERE project_name = ?),
         (SELECT id FROM palette_groups WHERE group_name = ?)
       );`, [colour, project_name, palette_group_name]);
 
@@ -38,7 +38,7 @@ export const insertColourPalette = async (
       await db.execute(`INSERT INTO colour_palette (colour, project_id, palette_group_id)
         VALUES (
         ?, 
-        (SELECT id FROM projects WHERE project_name = ?),
+        (SELECT id FROM project WHERE project_name = ?),
         NULL
       );`, [colour, project_name]);
 

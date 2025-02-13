@@ -8,7 +8,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         const preventNavigation = (event: KeyboardEvent) => {
             // Prevent page reload or navigation shortcuts
             if (
-                (event.ctrlKey && event.key.toLowerCase() === 'r') || // Ctrl + R
+                // (event.ctrlKey && event.key.toLowerCase() === 'r') || // Ctrl + R
                 (event.key === 'F5') || // F5
                 (event.key === 'Backspace' && !isTextInput(event)) // Backspace (when not in text fields)
             ) {
