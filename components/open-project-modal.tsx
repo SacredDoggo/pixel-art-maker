@@ -20,7 +20,7 @@ export const OpenProjectModal = () => {
             setProjects(data);
             setLoading(false);
         });
-    }, [db]);
+    }, [db, ps.isOpenProjectModalOpen]);
 
     const filteredSearchProjects = projects?.filter((project) => {
         return project.project_name.toLowerCase().includes(searchVal.trim().toLowerCase());

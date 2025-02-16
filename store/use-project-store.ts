@@ -19,7 +19,7 @@ export const useProjectStore = create<ProjectStore>((set) => ({
 	currentProject: null,
 	setCurrentProject: (project) => set({ currentProject: project }),
 
-	isOpenProjectModalOpen: true,
+	isOpenProjectModalOpen: false,
 	openOpenProjectModal: () => { set({ isOpenProjectModalOpen: true }) },
 	closeOpenProjectModal: () => { set({ isOpenProjectModalOpen: false }) },
 
