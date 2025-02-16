@@ -6,10 +6,11 @@ body,
 html,
 :root {
   height: 100%;
+  overscroll-behavior: none;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+.hide-spinner::-webkit-inner-spin-button,
+.hide-spinner::-webkit-outer-spin-button {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;

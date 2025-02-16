@@ -25,15 +25,15 @@ export const NavbarItemFile = () => {
                 >
                     <Item
                         label="New Project"
-                        handleClick={ps.openNewProjectModalOpen}
+                        handleClick={ps.openNewProjectModal}
                     />
                     <Item
                         label="Open Project"
-                        handleClick={() => { }}
+                        handleClick={ps.openOpenProjectModal}
                     />
                     <Item
                         label="Close Project"
-                        handleClick={() => { }}
+                        handleClick={ps.resetProjectStore}
                     />
                 </DropdownMenuContent>
             </DropdownMenuPortal>

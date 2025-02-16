@@ -29,7 +29,7 @@ export const ColourToolSidebar = () => {
     }
 
     return (
-        <aside className="h-full w-[300px] p-1 overflow-auto space-y-1 bg-[#1f1f1f] z-50 relative">
+        <aside className="h-full w-[300px] p-1 overflow-auto space-y-1 bg-[#1f1f1f] z-50 relative border-r-[1px] shadow-lg border-[#cfcfcf]">
             <CurrentColourAndColourSelector
                 colour={cts.currentColour}
             />

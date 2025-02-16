@@ -18,5 +18,5 @@ interface Project {
     project_name: string;
     height: number;
     width: number;
-    grid_data: string[][];
+    grid_data: string;
 }

@@ -3,7 +3,7 @@
 import { deleteColour, editColourPalette } from "@/db/colour-palette";
 import { ColourBox } from "./colour-box";
 import { useColourToolStore } from "@/store/colour-tool-store";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import {
     ContextMenu,
     ContextMenuContent,
@@ -29,6 +29,13 @@ export const ColourBoxContainer = ({
     const cts = useColourToolStore();
     const db = useDatabase();
 
+
+    const colourBoxes = useMemo(() => (
+        colourPalette?.map((colour) => (
+            <ColourBox key={colour.id} id={colour.id} colour={colour.colour} />
+        ))
+    ), [colourPalette]);
+
     const [selectedColour, setSelectedColour] = useState<string | null>(null);
     const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -51,7 +58,7 @@ export const ColourBoxContainer = ({
 
         if (target.getAttribute("data-colour") != null) {
             const colour = target.getAttribute("data-colour");
-            setSelectedColour(colour);
+            if (colour) setSelectedColour(colour);
         }
 
         if (target.getAttribute("data-colour-id") != null) {
@@ -101,19 +108,16 @@ export const ColourBoxContainer = ({
         <ContextMenu onOpenChange={handleContextMenuClose}>
             <ContextMenuTrigger asChild>
                 <div
-                    className="w-full bg-[#333333] h-[300px] p-2 overflow-auto colour-box-container rounded-md"
+                    className="w-full h-[300px] p-2 bg-[#333333] overflow-auto rounded-md colour-box-container"
                     onClick={handleColourBoxClick}
                     onContextMenu={handleContextMenu}
                 >
                     <span className="text-xs">Local</span>
                     <div className="flex flex-wrap gap-1 items-start">
-                        {colourPalette?.map((colour) => (
-                            <ColourBox
-                                key={colour.id}
-                                id={colour.id}
-                                colour={colour.colour}
-                            />
-                        ))}
+                        {colourPalette?.length === 0 && (
+                            <div className="text-white text-xs font-mono text-center">No colours available. Add one!</div>
+                        )}
+                        {colourBoxes}
                     </div>
                 </div>
             </ContextMenuTrigger>
@@ -131,12 +135,14 @@ export const ColourBoxContainer = ({
                     <ContextMenuItem
                         onClick={handleEditClick}
                         className="cursor-pointer flex items-center text-sm hover:bg-[#474747] p-1 rounded-sm"
+                        aria-label="Edit colour"
                     >
                         <FilePenLineIcon className="h-4 w-4 mr-1" /> Edit
                     </ContextMenuItem>
                     <ContextMenuItem
                         onClick={handleDeleteClick}
                         className="cursor-pointer flex items-center text-sm hover:bg-[#474747] p-1 rounded-sm"
+                        aria-label="Delete colour"
                     >
                         <TrashIcon className="h-4 w-4 mr-1" /> Delete
                     </ContextMenuItem>

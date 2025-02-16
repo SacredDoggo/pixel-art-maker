@@ -1,16 +1,14 @@
 "use client";
 
 import { useProjectStore } from "@/store/use-project-store";
-import { FormEvent, MouseEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import {
     Form,
     FormControl,
     FormField,
-    FormLabel,
     FormMessage,
     FormSubmit
 } from "@radix-ui/react-form";
-import Input from "./ui/input";
 import { CircleAlertIcon } from "lucide-react";
 import { makeToast } from "@/lib/toast-manager";
 import { insertProject } from "@/db/project";
@@ -26,7 +24,7 @@ export const NewProjectModal = () => {
 
     // Close the new project modal 
     const handleClose = () => {
-        ps.closeNewProjectModalOpen();
+        ps.closeNewProjectModal();
     };
 
     // Handle Confirm
@@ -65,6 +63,7 @@ export const NewProjectModal = () => {
                     type: "error",
                     message: "Error while creating new Project"
                 });
+                console.error(error);
             }
         };
 
@@ -98,7 +97,7 @@ export const NewProjectModal = () => {
                                     <FormField name="canvas_height" className="w-full">
                                         <FormControl asChild>
                                             <input
-                                                className="appearance-none w-full focus:outline-none focus:ring-0 bg-gray-600 rounded-sm px-2 py-1"
+                                                className="appearance-none w-full focus:outline-none focus:ring-0 bg-gray-600 rounded-sm px-2 py-1 hide-spinner"
                                                 value={canvasHeight}
                                                 type="number"
                                                 min={1}
@@ -118,7 +117,7 @@ export const NewProjectModal = () => {
                                     <FormField name="canvas_width" className="w-full">
                                         <FormControl asChild>
                                             <input
-                                                className="appearance-none w-full focus:outline-none focus:ring-0 bg-gray-600 rounded-sm px-2 py-1"
+                                                className="appearance-none w-full focus:outline-none focus:ring-0 bg-gray-600 rounded-sm px-2 py-1 hide-spinner"
                                                 value={canvasWidth}
                                                 type="number"
                                                 min={1}

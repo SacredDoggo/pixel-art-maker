@@ -2,6 +2,7 @@
 
 import { ColourPickerModal } from "@/components/colour-picker-modal";
 import { NewProjectModal } from "@/components/new-project-modal";
+import { OpenProjectModal } from "@/components/open-project-modal";
 import { useEffect, useState } from "react";
 
 export const ModalProvider = () => {
@@ -16,6 +17,7 @@ export const ModalProvider = () => {
         <>
             <ColourPickerModal />
             <NewProjectModal />
+            <OpenProjectModal />
         </>
     );
 }

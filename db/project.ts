@@ -18,13 +18,15 @@ export const insertProject = async (
 
         const grid = grid_data ?? createEmptyGrid(width, height);
 
+        const grid_str = JSON.stringify(grid);
+
         const qr: QueryResult = await db.execute(
             "INSERT INTO project (project_name, height, width, grid_data) VALUES (?, ?, ?, ?);",
-            [project_name, height, width, JSON.stringify(grid)]
+            [project_name, height, width, grid_str]
         );
 
-        const result: Project = await db.select("SELECT * FROM project WHERE id=?", [qr.lastInsertId]);
-        return result;
+        const result: Project[] = await db.select("SELECT * FROM project WHERE id=?", [qr.lastInsertId]);
+        return result[0];
     } catch (error) {
         makeToast({
             type: "error",
@@ -69,8 +71,8 @@ export const getProjectById = async (
         const tableOK = await tableStatus(db, { projects: true });
         if (!tableOK) throw new Error("Table creation or reading error");
 
-        const result: Project = await db.select("SELECT * FROM project WHERE id=?", [id]);
-        return result;
+        const result: Project[] = await db.select("SELECT * FROM project WHERE id=?", [id]);
+        return result[0];
     } catch (error) {
         makeToast({
             type: "error",
@@ -95,8 +97,8 @@ export const updateProject = async (
         const tableOK = await tableStatus(db, { projects: true });
         if (!tableOK) throw new Error("Table creation or reading error");
 
-        if (project_name) await db.execute("UPDATE project SET project_name=? WHERE id=?);", [project_name, id]);
-        if (grid_data) await db.execute("UPDATE project SET grid_data=? WHERE id=?);", [JSON.stringify(grid_data), id]);
+        if (project_name) await db.execute("UPDATE project SET project_name=? WHERE id=?;", [project_name, id]);
+        if (grid_data) await db.execute("UPDATE project SET grid_data=? WHERE id=?;", [JSON.stringify(grid_data), id]);
     } catch (error) {
         makeToast({
             type: "error",

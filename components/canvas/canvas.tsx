@@ -1,16 +1,23 @@
 "use client";
 
 import React, { useRef, useEffect, JSX, useCallback, useState } from "react";
-import { Button } from "@/components/ui/button";
+
 import { useColourToolStore } from "@/store/colour-tool-store";
 import { createEmptyGrid } from "@/lib/utils";
+import { useDatabase } from "@/hooks/use-database";
+import { updateProject } from "@/db/project";
+
+import { Button } from "@/components/ui/button";
+import { EraserIcon, Grid3X3Icon, PaintBucketIcon, PenIcon, Redo2Icon, SquareXIcon, Undo2Icon } from "lucide-react";
+
+import { UtilityButton } from "./utility-button-canvas";
+import { NumberConstrainedUtilityInput } from "./number-constrained-utility-input";
 
 interface PixelArtMakerProps {
+  project_id?: number;
   color?: string;
   width: number;
   height: number;
-  pixelSize: number;
-  gridLinesView?: boolean;
   gridDataPrev?: string[][];
 }
 
@@ -20,12 +27,14 @@ const cloneGrid = (grid: string[][]): string[][] => {
 };
 
 export const PixelArtCanvas = ({
+  project_id,
   width,
   height,
-  pixelSize,
-  gridLinesView = false,
   gridDataPrev
 }: PixelArtMakerProps): JSX.Element => {
+  // Database 
+  const db = useDatabase();
+
   // The canvas ref.
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // Dummy canvas ref for downloading image
@@ -33,7 +42,13 @@ export const PixelArtCanvas = ({
 
   // The grid data holds the color for each cell.
   // gridData.current is a 2D array of size [height][width]
-  const gridData = useRef<string[][]>(gridDataPrev ? gridDataPrev : createEmptyGrid(width, height));
+  const gridData = useRef<string[][]>(createEmptyGrid(width, height));
+
+  // Pixel size data
+  const [pixelSize, setPixelSize] = useState(5);
+
+  // Grid lines View
+  const [gridLinesView, setGridLinesView] = useState(false);
 
   // Undo and redo stacks store snapshots of the grid.
   const undoStack = useRef<string[][][]>([]);
@@ -108,6 +123,8 @@ export const PixelArtCanvas = ({
     if (gridData.current[row][col] === newColor) return;
 
     gridData.current[row][col] = newColor;
+    if (project_id) updateProject(db, project_id, undefined, gridData.current);
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -142,6 +159,9 @@ export const PixelArtCanvas = ({
     canvas.width = width * pixelSize;
     canvas.height = height * pixelSize;
 
+    // Set grid_data if provided already
+    if (gridDataPrev) gridData.current = undoStack.current.at(-1) ?? gridDataPrev;
+
     // When width, height, or pixelSize changes, update the dummy canvas size too.
     const dummyCanvas = dummyCanvasRef.current;
     if (!dummyCanvas) return;
@@ -161,7 +181,7 @@ export const PixelArtCanvas = ({
 
     drawCanvas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, pixelSize, gridLinesView]);
+  }, [width, height, pixelSize, gridLinesView, gridDataPrev]);
 
   // Handle mouse down: start drawing and save grid snapshot.
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -217,6 +237,7 @@ export const PixelArtCanvas = ({
   const clearCanvas = () => {
     undoStack.current.push(cloneGrid(gridData.current));
     gridData.current = createEmptyGrid(width, height);
+    if (project_id) updateProject(db, project_id, undefined, gridData.current);
     redoStack.current = [];
     drawCanvas();
   };
@@ -229,6 +250,7 @@ export const PixelArtCanvas = ({
     const previousGrid = undoStack.current.pop();
     if (previousGrid) {
       gridData.current = previousGrid;
+      if (project_id) updateProject(db, project_id, undefined, previousGrid);
       drawCanvas();
     }
   };
@@ -241,6 +263,7 @@ export const PixelArtCanvas = ({
     const nextGrid = redoStack.current.pop();
     if (nextGrid) {
       gridData.current = nextGrid;
+      if (project_id) updateProject(db, project_id, undefined, nextGrid);
       drawCanvas();
     }
   };
@@ -298,31 +321,73 @@ export const PixelArtCanvas = ({
 
     // Redraw existing canvas content
     drawCanvas();
-  }
+  };
+
+  const handlePixelSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value)) {
+      setPixelSize(value);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
-      <div className="flex gap-2">
-        <Button onClick={clearCanvas}>Clear Canvas</Button>
-        <Button onClick={undo}>Undo</Button>
-        <Button onClick={redo}>Redo</Button>
+    <>
+      <div className="fixed top-6 h-12 items-center p-4 flex gap-2 bg-[#2f2f2f] w-full">
+        <UtilityButton handleClick={clearCanvas} toolTipMessage={"Clear cnavas"} icon={SquareXIcon} />
+        <UtilityButton handleClick={undo} toolTipMessage={"Undo"} icon={Undo2Icon} />
+        <UtilityButton handleClick={redo} toolTipMessage={"Redo"} icon={Redo2Icon} />
+        <div className="h-full w-[1px] bg-white" />
+        <UtilityButton
+          handleClick={() => cts.setCurrentTool("pen")}
+          toolTipMessage={"Pen"}
+          icon={PenIcon}
+          active={cts.currentTool == "pen"}
+        />
+        <UtilityButton
+          handleClick={() => cts.setCurrentTool("bucket")}
+          toolTipMessage={"Bucket"}
+          icon={PaintBucketIcon}
+          active={cts.currentTool == "bucket"}
+        />
+        <UtilityButton
+          handleClick={() => cts.setCurrentTool("eraser")}
+          toolTipMessage={"Eraser"}
+          icon={EraserIcon}
+          active={cts.currentTool == "eraser"}
+        />
+        <div className="h-full w-[1px] bg-white" />
+        <UtilityButton
+          handleClick={() => setGridLinesView(prev => !prev)}
+          toolTipMessage={"Grid lines"}
+          icon={Grid3X3Icon}
+          active={gridLinesView}
+        />
+        <div className="h-full w-[1px] bg-white" />
+        <NumberConstrainedUtilityInput
+          pixelSize={pixelSize} 
+          handleChange={handlePixelSizeChange} 
+          setPixelSize={setPixelSize}          
+        />
+
         <Button onClick={() => exportCanvas("png")}>Export PNG</Button>
         <Button onClick={() => exportCanvas("jpeg")}>Export JPEG</Button>
         <Button className="hidden" onClick={() => handleZoom("in")}>Zoom in</Button>
         <Button className="hidden" onClick={() => handleZoom("out")}>Zoom out</Button>
       </div>
-      <canvas
-        ref={canvasRef}
-        className="border border-gray-300 cursor-crosshair bg-white"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-      />
-      <canvas
-        ref={dummyCanvasRef}
-        className="hidden"
-      />
-    </div>
+      <div className="min-w-min min-h-min p-4 pt-20">
+        <canvas
+          ref={canvasRef}
+          className="border border-gray-300 cursor-crosshair bg-white"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+        />
+        <canvas
+          ref={dummyCanvasRef}
+          className="hidden"
+        />
+      </div>
+    </>
   );
 }

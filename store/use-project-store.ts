@@ -1,23 +1,31 @@
 import { create } from "zustand";
 
 type ProjectStore = {
-    currentProject: Project | null;
-    setCurrentProject: (project: Project) => void;
+	currentProject: Project | null;
+	setCurrentProject: (project: Project) => void;
 
-    isNewProjectModalOpen: boolean;
-    openNewProjectModalOpen: () => void;
-    closeNewProjectModalOpen: () => void;
+	isOpenProjectModalOpen: boolean;
+	openOpenProjectModal: () => void;
+	closeOpenProjectModal: () => void;
 
-    resetProjectStore: () => void;
-  };
-  
-  export const useProjectStore = create<ProjectStore>((set) => ({
-    currentProject: null,
-    setCurrentProject: (project) => set({ currentProject: project }),
+	isNewProjectModalOpen: boolean;
+	openNewProjectModal: () => void;
+	closeNewProjectModal: () => void;
 
-    isNewProjectModalOpen: true,
-    openNewProjectModalOpen: () => { set({ isNewProjectModalOpen: true }) },
-    closeNewProjectModalOpen: () => { set({ isNewProjectModalOpen: false }) },
-    
-    resetProjectStore: () => set({ currentProject: null })
-  }));
+	resetProjectStore: () => void;
+};
+
+export const useProjectStore = create<ProjectStore>((set) => ({
+	currentProject: null,
+	setCurrentProject: (project) => set({ currentProject: project }),
+
+	isOpenProjectModalOpen: true,
+	openOpenProjectModal: () => { set({ isOpenProjectModalOpen: true }) },
+	closeOpenProjectModal: () => { set({ isOpenProjectModalOpen: false }) },
+
+	isNewProjectModalOpen: false,
+	openNewProjectModal: () => { set({ isNewProjectModalOpen: true }) },
+	closeNewProjectModal: () => { set({ isNewProjectModalOpen: false }) },
+
+	resetProjectStore: () => set({ currentProject: null })
+}));

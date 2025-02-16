@@ -16,10 +16,10 @@ const HomePage = () => {
   }, [db]);
 
   return (
-    <>
+    <div className="h-full flex-1 items-center justify-center overflow-auto">
     {/* TODO */}
       {ps.currentProject ? <ProjectScreen /> : <HomeScreen />}
-    </>
+    </div>
   );
 };
 
