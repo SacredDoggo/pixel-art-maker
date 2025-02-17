@@ -45,7 +45,7 @@ export const PixelArtCanvas = ({
   const gridData = useRef<string[][]>(createEmptyGrid(width, height));
 
   // Pixel size data
-  const [pixelSize, setPixelSize] = useState(5);
+  const [pixelSize, setPixelSize] = useState<number>(5);
 
   // Grid lines View
   const [gridLinesView, setGridLinesView] = useState(false);
@@ -181,7 +181,11 @@ export const PixelArtCanvas = ({
 
     drawCanvas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, pixelSize, gridLinesView, gridDataPrev]);
+  }, [width, height, pixelSize, gridDataPrev]);
+
+  useEffect(() => {
+    drawCanvas();
+  }, [gridLinesView])
 
   // Handle mouse down: start drawing and save grid snapshot.
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {

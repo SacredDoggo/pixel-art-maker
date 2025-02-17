@@ -29,11 +29,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <main className="h-full w-full pt-7 dark:bg-[#1f1f1f]">
+        <main className="h-full w-full pt-7 bg-[#1f1f1f]">
           <TooltipProvider delayDuration={300}>
             <Navbar />
             {children}

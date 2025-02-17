@@ -57,7 +57,7 @@ export const OpenProjectModal = () => {
             {ps.isOpenProjectModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="absolute inset-0 bg-black bg-opacity-50" onClick={handleClose} />
-                    <div className="relative w-[600px] z-50 bg-white font-mono dark:bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div className="relative w-[600px] z-50 font-mono bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
                         <p className="w-full text-center text-xl font-bold">Choose a project</p>
                         <div className="h-[1px] bg-white w-full my-2" />
                         <div

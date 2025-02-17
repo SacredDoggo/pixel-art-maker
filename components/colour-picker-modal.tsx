@@ -44,7 +44,7 @@ export const ColourPickerModal = () => {
             {cps.isColourPickerModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="absolute inset-0 bg-black bg-opacity-50" onClick={handleClose} />
-                    <div className="relative z-50 bg-white dark:bg-gray-800 text-black p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div className="relative z-50 bg-gray-800 text-black p-4 rounded-lg shadow-lg border border-gray-700">
                         <PhotoshopPicker
                             color={cps.lastColourState}
                             onAccept={handleAccept}
