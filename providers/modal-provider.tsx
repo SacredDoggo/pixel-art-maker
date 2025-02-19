@@ -1,8 +1,9 @@
 "use client";
 
-import { ColourPickerModal } from "@/components/colour-picker-modal";
-import { NewProjectModal } from "@/components/new-project-modal";
-import { OpenProjectModal } from "@/components/open-project-modal";
+import { ColourPickerModal } from "@/components/modals/colour-picker-modal";
+import { ExportCanvasModal } from "@/components/modals/export-canvas-modal";
+import { NewProjectModal } from "@/components/modals/new-project-modal";
+import { OpenProjectModal } from "@/components/modals/open-project-modal";
 import { useEffect, useState } from "react";
 
 export const ModalProvider = () => {
@@ -18,6 +19,7 @@ export const ModalProvider = () => {
             <ColourPickerModal />
             <NewProjectModal />
             <OpenProjectModal />
+            <ExportCanvasModal />
         </>
     );
 }

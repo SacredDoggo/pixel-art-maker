@@ -7,7 +7,7 @@ import {
     DropdownMenuTrigger
 } from "@radix-ui/react-dropdown-menu";
 import { Item } from "./menu-item-component";
-import { useProjectStore } from "@/store/use-project-store";
+import { useProjectStore } from "@/store/project-store";
 
 export const NavbarItemFile = () => {
     const ps = useProjectStore();

@@ -72,7 +72,7 @@ export const getProjectById = async (
         if (!tableOK) throw new Error("Table creation or reading error");
 
         const result: Project[] = await db.select("SELECT * FROM project WHERE id=?", [id]);
-        return result[0];
+        return result[0] ?? null;
     } catch (error) {
         makeToast({
             type: "error",

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { ColourToolSidebar } from "./_components/colour-tool-sidebar/colour-tool-sidebar";
-import { useProjectStore } from "@/store/use-project-store";
+import { useProjectStore } from "@/store/project-store";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
     const ps = useProjectStore();

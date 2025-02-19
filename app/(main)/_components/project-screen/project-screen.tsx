@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { PixelArtCanvas } from "@/components/canvas/canvas";
-import { useProjectStore } from "@/store/use-project-store";
+import { useProjectStore } from "@/store/project-store";
 
 export const ProjectScreen = () => {
     const ps = useProjectStore();

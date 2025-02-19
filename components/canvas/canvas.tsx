@@ -8,10 +8,11 @@ import { useDatabase } from "@/hooks/use-database";
 import { updateProject } from "@/db/project";
 
 import { Button } from "@/components/ui/button";
-import { EraserIcon, Grid3X3Icon, PaintBucketIcon, PenIcon, Redo2Icon, SquareXIcon, Undo2Icon } from "lucide-react";
+import { EraserIcon, Grid3X3Icon, PaintBucketIcon, PenIcon, Redo2Icon, SquareArrowOutUpRightIcon, SquareXIcon, Undo2Icon } from "lucide-react";
 
 import { UtilityButton } from "./utility-button-canvas";
-import { NumberConstrainedUtilityInput } from "./number-constrained-utility-input";
+import { NumberConstrainedUtilityInput } from "../number-constrained-utility-input";
+import { useExportStore } from "@/store/export-store";
 
 interface PixelArtMakerProps {
   project_id?: number;
@@ -35,6 +36,9 @@ export const PixelArtCanvas = ({
   // Database 
   const db = useDatabase();
 
+  // Export Store
+  const es = useExportStore();
+
   // The canvas ref.
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // Dummy canvas ref for downloading image
@@ -54,8 +58,9 @@ export const PixelArtCanvas = ({
   const undoStack = useRef<string[][][]>([]);
   const redoStack = useRef<string[][][]>([]);
 
-  // A flag to indicate whether the user is drawing.
-  const isDrawing = useRef<boolean>(false);
+
+  const isDrawing = useRef<boolean>(false);   // A flag to indicate whether the user is drawing.
+  const isMouseInCanvas = useRef<boolean>(false); // A flag to indicate wether the pointer is inside the canvas or not.
 
   // Colour Tool Store
   const cts = useColourToolStore();
@@ -129,7 +134,7 @@ export const PixelArtCanvas = ({
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = newColor;
+    ctx.fillStyle = cts.currentTool === "eraser" ? "#ffffffff" : newColor;
     ctx.fillRect(col * pixelSize, row * pixelSize, pixelSize, pixelSize);
 
     // If grid lines are enabled, re-draw them over this cell.
@@ -190,6 +195,8 @@ export const PixelArtCanvas = ({
   // Handle mouse down: start drawing and save grid snapshot.
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (event.button != 0) return;
+    // Declare that mouse is in canvas
+    isMouseInCanvas.current = true;
     // Save a snapshot of the current grid for undo.
     undoStack.current.push(cloneGrid(gridData.current));
     // Clear redo stack.
@@ -216,7 +223,7 @@ export const PixelArtCanvas = ({
 
   // Handle mouse move: if drawing, update the corresponding cell.
   const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing.current) return;
+    if (!isDrawing.current || !isMouseInCanvas.current) return;
     const { col, row } = getCellCoordinates(event);
     if (cts.currentTool === "pen")
       updateCell(col, row, cts.currentColour);
@@ -233,9 +240,13 @@ export const PixelArtCanvas = ({
 
   const handleMouseLeave = () => {
     if (!isDrawing.current) return;
-    isDrawing.current = false;
+    isMouseInCanvas.current = false;
     drawCanvas();
   };
+
+  const handleMouseEnter = () => {
+    isMouseInCanvas.current = true;
+  }
 
   // Clear the entire canvas (reset grid data) and clear undo/redo stacks.
   const clearCanvas = () => {
@@ -291,21 +302,6 @@ export const PixelArtCanvas = ({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  const exportCanvas = (format: "png" | "jpeg" = "png") => {
-    const dummyCanvas = dummyCanvasRef.current;
-    if (!dummyCanvas) return;
-    drawCanvas(dummyCanvasRef, 1, false);
-    // Convert canvas to data URL (MIME type image/png or image/jpeg)
-    const dataUrl = dummyCanvas.toDataURL(`image/${format}`);
-    // Create an anchor element and trigger a download
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = `canvas.${format}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const handleZoom = (value: "in" | "out") => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -330,7 +326,9 @@ export const PixelArtCanvas = ({
   const handlePixelSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value)) {
-      setPixelSize(value);
+      if (value < 1) setPixelSize(1);
+      else if (value > 30) setPixelSize(30);
+      else setPixelSize(value);
     }
   };
 
@@ -368,13 +366,13 @@ export const PixelArtCanvas = ({
         />
         <div className="h-full w-[1px] bg-white" />
         <NumberConstrainedUtilityInput
-          pixelSize={pixelSize} 
+          data={pixelSize} 
           handleChange={handlePixelSizeChange} 
-          setPixelSize={setPixelSize}          
+          setData={setPixelSize}          
         />
-
-        <Button onClick={() => exportCanvas("png")}>Export PNG</Button>
-        <Button onClick={() => exportCanvas("jpeg")}>Export JPEG</Button>
+        <div className="h-full w-[1px] bg-white" />
+        <UtilityButton handleClick={es.openExportModal} toolTipMessage="Export" icon={SquareArrowOutUpRightIcon} />
+        {/* TODO */}
         <Button className="hidden" onClick={() => handleZoom("in")}>Zoom in</Button>
         <Button className="hidden" onClick={() => handleZoom("out")}>Zoom out</Button>
       </div>
@@ -386,6 +384,7 @@ export const PixelArtCanvas = ({
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
+          onMouseEnter={handleMouseEnter}
         />
         <canvas
           ref={dummyCanvasRef}

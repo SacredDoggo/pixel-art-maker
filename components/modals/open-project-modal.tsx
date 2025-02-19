@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { useProjectStore } from "@/store/use-project-store";
+import { useProjectStore } from "@/store/project-store";
 import { useDatabase } from "@/hooks/use-database";
 import { getProjectById, getProjects } from "@/db/project";
 import { makeToast } from "@/lib/toast-manager";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useProjectStore } from "@/store/use-project-store";
+import { useProjectStore } from "@/store/project-store";
 import { FormEvent, useState } from "react";
 import {
     Form,
