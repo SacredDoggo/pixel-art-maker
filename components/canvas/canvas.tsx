@@ -156,6 +156,27 @@ export const PixelArtCanvas = ({
     return { col, row };
   };
 
+  // Re-render the canvas if pixelSizeChanges
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.width = width * pixelSize;
+    canvas.height = height * pixelSize;
+
+    // If gridData is not already the correct size, reinitialize it.
+    if (
+      gridData.current.length !== height ||
+      gridData.current[0]?.length !== width
+    ) {
+      gridData.current = createEmptyGrid(width, height);
+      // Clear undo/redo stacks since the canvas dimensions changed.
+      undoStack.current = [];
+      redoStack.current = [];
+    }
+
+    drawCanvas();
+  }, [pixelSize])
+
   // Initialize the canvas and grid data.
   useEffect(() => {
     // When width, height, or pixelSize changes, update the canvas size.
@@ -186,7 +207,7 @@ export const PixelArtCanvas = ({
 
     drawCanvas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, pixelSize, gridDataPrev]);
+  }, [width, height, gridDataPrev]);
 
   useEffect(() => {
     drawCanvas();
@@ -366,9 +387,9 @@ export const PixelArtCanvas = ({
         />
         <div className="h-full w-[1px] bg-white" />
         <NumberConstrainedUtilityInput
-          data={pixelSize} 
-          handleChange={handlePixelSizeChange} 
-          setData={setPixelSize}          
+          data={pixelSize}
+          handleChange={handlePixelSizeChange}
+          setData={setPixelSize}
         />
         <div className="h-full w-[1px] bg-white" />
         <UtilityButton handleClick={es.openExportModal} toolTipMessage="Export" icon={SquareArrowOutUpRightIcon} />

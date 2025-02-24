@@ -7,7 +7,7 @@ type ExportStore = {
 };
 
 export const useExportStore = create<ExportStore>((set) => ({
-    isExportModalOpen: true,
+    isExportModalOpen: false,
     openExportModal: () => { set({ isExportModalOpen: true }) },
     closeExportModal: () => { set({ isExportModalOpen: false }) }
 }));
