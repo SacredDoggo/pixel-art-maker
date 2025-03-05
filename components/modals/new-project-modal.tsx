@@ -13,6 +13,7 @@ import { CircleAlertIcon } from "lucide-react";
 import { makeToast } from "@/lib/toast-manager";
 import { insertProject } from "@/db/project";
 import { useDatabase } from "@/hooks/use-database";
+import { softwareStateChanged } from "@/lib/utils";
 
 export const NewProjectModal = () => {
     const db = useDatabase();
@@ -57,6 +58,7 @@ export const NewProjectModal = () => {
                     message: `New project created: ${projectName}`
                 });
                 ps.setCurrentProject(project);
+                softwareStateChanged(db, project.id);
                 handleClose();
             } catch (error) {
                 makeToast({

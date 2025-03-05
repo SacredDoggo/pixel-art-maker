@@ -5,14 +5,17 @@ import React, { useRef, useEffect, JSX, useCallback, useState } from "react";
 import { useColourToolStore } from "@/store/colour-tool-store";
 import { createEmptyGrid } from "@/lib/utils";
 import { useDatabase } from "@/hooks/use-database";
-import { updateProject } from "@/db/project";
+import { updateProject, updateProjectConfig } from "@/db/project";
 
 import { Button } from "@/components/ui/button";
-import { EraserIcon, Grid3X3Icon, PaintBucketIcon, PenIcon, Redo2Icon, SquareArrowOutUpRightIcon, SquareXIcon, Undo2Icon } from "lucide-react";
+import { EraserIcon, Grid3X3Icon, PaintBucketIcon, PenIcon, Redo2Icon, SaveIcon, SquareArrowOutUpRightIcon, SquareXIcon, Undo2Icon } from "lucide-react";
 
 import { UtilityButton } from "./utility-button-canvas";
 import { NumberConstrainedUtilityInput } from "../number-constrained-utility-input";
 import { useExportStore } from "@/store/export-store";
+import { SwitchUtilityButton } from "../switch-utility-button";
+import { useProjectStore } from "@/store/project-store";
+import { makeToast } from "@/lib/toast-manager";
 
 interface PixelArtMakerProps {
   project_id?: number;
@@ -31,13 +34,16 @@ export const PixelArtCanvas = ({
   project_id,
   width,
   height,
-  gridDataPrev
 }: PixelArtMakerProps): JSX.Element => {
   // Database 
   const db = useDatabase();
 
-  // Export Store
+  // Stores
   const es = useExportStore();
+  const ps = useProjectStore();
+
+  // Config Elements
+  const [autoSave, setAutoSave] = useState(true);
 
   // The canvas ref.
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -128,7 +134,9 @@ export const PixelArtCanvas = ({
     if (gridData.current[row][col] === newColor) return;
 
     gridData.current[row][col] = newColor;
-    if (project_id) updateProject(db, project_id, undefined, gridData.current);
+    if (project_id && autoSave) {
+      saveData();
+    }
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -163,17 +171,6 @@ export const PixelArtCanvas = ({
     canvas.width = width * pixelSize;
     canvas.height = height * pixelSize;
 
-    // If gridData is not already the correct size, reinitialize it.
-    if (
-      gridData.current.length !== height ||
-      gridData.current[0]?.length !== width
-    ) {
-      gridData.current = createEmptyGrid(width, height);
-      // Clear undo/redo stacks since the canvas dimensions changed.
-      undoStack.current = [];
-      redoStack.current = [];
-    }
-
     drawCanvas();
   }, [pixelSize])
 
@@ -184,9 +181,6 @@ export const PixelArtCanvas = ({
     if (!canvas) return;
     canvas.width = width * pixelSize;
     canvas.height = height * pixelSize;
-
-    // Set grid_data if provided already
-    if (gridDataPrev) gridData.current = undoStack.current.at(-1) ?? gridDataPrev;
 
     // When width, height, or pixelSize changes, update the dummy canvas size too.
     const dummyCanvas = dummyCanvasRef.current;
@@ -205,13 +199,29 @@ export const PixelArtCanvas = ({
       redoStack.current = [];
     }
 
-    drawCanvas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, gridDataPrev]);
+    const loadProjectConfig = async () => {
+      if (!ps.currentProject) return;
 
-  useEffect(() => {
-    drawCanvas();
-  }, [gridLinesView])
+      const grid_data = await JSON.parse(ps.currentProject.grid_data);
+      const undo_stack_data = await JSON.parse(ps.currentProject.project_config.undo_stack)
+      const redo_stack_data = await JSON.parse(ps.currentProject.project_config.redo_stack)
+      gridData.current = grid_data;
+      undoStack.current = undo_stack_data;
+      redoStack.current = redo_stack_data;
+
+      setAutoSave(!!ps.currentProject.project_config.autosave);
+      setPixelSize(ps.currentProject.project_config.pixel_size);
+      setGridLinesView(!!ps.currentProject.project_config.grid_lines_view);
+      cts.setCurrentColour(ps.currentProject.project_config.last_selected_colour);
+      cts.setCurrentTool(ps.currentProject.project_config.last_selected_tool);
+
+      drawCanvas();
+    }
+
+    loadProjectConfig();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, height, project_id]);
 
   // Handle mouse down: start drawing and save grid snapshot.
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -273,7 +283,9 @@ export const PixelArtCanvas = ({
   const clearCanvas = () => {
     undoStack.current.push(cloneGrid(gridData.current));
     gridData.current = createEmptyGrid(width, height);
-    if (project_id) updateProject(db, project_id, undefined, gridData.current);
+    if (project_id && autoSave) {
+      saveData();
+    }
     redoStack.current = [];
     drawCanvas();
   };
@@ -286,7 +298,9 @@ export const PixelArtCanvas = ({
     const previousGrid = undoStack.current.pop();
     if (previousGrid) {
       gridData.current = previousGrid;
-      if (project_id) updateProject(db, project_id, undefined, previousGrid);
+      if (project_id && autoSave) {
+        saveData();
+      }
       drawCanvas();
     }
   };
@@ -299,10 +313,36 @@ export const PixelArtCanvas = ({
     const nextGrid = redoStack.current.pop();
     if (nextGrid) {
       gridData.current = nextGrid;
-      if (project_id) updateProject(db, project_id, undefined, nextGrid);
+      if (project_id && autoSave) {
+        saveData();
+      }
       drawCanvas();
     }
   };
+
+  const saveData = () => {
+    if (!project_id) return;
+    updateProject(db, project_id, undefined, gridData.current);
+    updateProjectConfig(db, project_id, {
+      autosave: autoSave ? 1 : 0,
+      pixel_size: pixelSize,
+      last_selected_colour: cts.currentColour,
+      grid_lines_view: gridLinesView ? 1 : 0,
+      last_selected_tool: cts.currentTool,
+      undo_stack: undoStack.current,
+      redo_stack: redoStack.current
+    });
+  };
+
+  useEffect(() => {
+    drawCanvas();
+  }, [gridLinesView]);
+
+  useEffect(() => {
+    saveData();
+  }, [autoSave, cts.currentColour, cts.currentTool, pixelSize, gridLinesView, undo, redo]);
+
+
 
   // Keyboard shortcuts for undo (Ctrl+Z/Cmd+Z) and redo (Ctrl+Y or Ctrl+Shift+Z).
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -315,6 +355,12 @@ export const PixelArtCanvas = ({
     ) {
       event.preventDefault();
       redo();
+    } else if (
+      (event.ctrlKey || event.metaKey) &&
+      (event.key === "s")
+    ) {
+      event.preventDefault();
+      handleSaveClick();
     }
   }, [undo, redo]);
 
@@ -353,9 +399,29 @@ export const PixelArtCanvas = ({
     }
   };
 
+  const handleSaveClick = () => {
+    try {
+      saveData();
+      makeToast({
+        type: "success",
+        message: "Saved"
+      })
+    } catch (error) {
+      makeToast({
+        type: "error",
+        message: "Error while saving",
+        description: JSON.stringify(error)
+      })
+    }
+  }
+
   return (
     <>
       <div className="fixed top-6 h-12 items-center p-4 flex gap-2 bg-[#2f2f2f] w-full">
+        <SwitchUtilityButton label="Autosave" checked={autoSave} setChecked={setAutoSave} />
+        <div className="h-full w-[1px] bg-white" />
+        <UtilityButton handleClick={handleSaveClick} toolTipMessage="Save (Ctrl + S)" icon={SaveIcon} />
+        <div className="h-full w-[1px] bg-white" />
         <UtilityButton handleClick={clearCanvas} toolTipMessage={"Clear cnavas"} icon={SquareXIcon} />
         <UtilityButton handleClick={undo} toolTipMessage={"Undo"} icon={Undo2Icon} />
         <UtilityButton handleClick={redo} toolTipMessage={"Redo"} icon={Redo2Icon} />

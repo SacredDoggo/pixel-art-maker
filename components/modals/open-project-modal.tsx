@@ -6,6 +6,7 @@ import { useProjectStore } from "@/store/project-store";
 import { useDatabase } from "@/hooks/use-database";
 import { getProjectById, getProjects } from "@/db/project";
 import { makeToast } from "@/lib/toast-manager";
+import { softwareStateChanged } from "@/lib/utils";
 
 export const OpenProjectModal = () => {
     const db = useDatabase();
@@ -38,6 +39,7 @@ export const OpenProjectModal = () => {
             if (e.button == 0) {
                 if (project) {
                     ps.setCurrentProject(project);
+                    softwareStateChanged(db, project.id);
                     handleClose();
                 }
                 else makeToast({

@@ -8,25 +8,34 @@ export const insertProject = async (
     project_name: string,
     height: number,
     width: number,
-    grid_data?: string[][]
+    grid_data?: string[][],
 ): Promise<Project | null> => {
     if (!db) return null;
 
     try {
-        const tableOK = await tableStatus(db, { projects: true });
+        const tableOK = await tableStatus(db, { projects: true, project_config: true });
         if (!tableOK) throw new Error("Table creation or reading error");
 
         const grid = grid_data ?? createEmptyGrid(width, height);
 
         const grid_str = JSON.stringify(grid);
 
-        const qr: QueryResult = await db.execute(
+        const project_query: QueryResult = await db.execute(
             "INSERT INTO project (project_name, height, width, grid_data) VALUES (?, ?, ?, ?);",
             [project_name, height, width, grid_str]
         );
 
-        const result: Project[] = await db.select("SELECT * FROM project WHERE id=?", [qr.lastInsertId]);
-        return result[0];
+        const project_config_query = await db.execute(
+            "INSERT INTO project_config (project_id, autosave, pixel_size, last_selected_colour, grid_lines_view, last_selected_tool, undo_stack, redo_stack) values (?, ?, ?, ?, ?, ?, ?, ?);",
+            [project_query.lastInsertId, 1, 5, "#000000", 0, "pen", "[]", "[]"]
+        );
+
+        const project: Project[] = await db.select("SELECT * FROM project WHERE id=?", [project_query.lastInsertId]);
+        const config: ProjectConfig[] = await db.select("SELECT * FROM project_config WHERE id=?", [project_config_query.lastInsertId]);
+
+        project[0].project_config = config[0];
+
+        return project[0];
     } catch (error) {
         makeToast({
             type: "error",
@@ -46,14 +55,14 @@ export const getProjects = async (
 
     try {
         const tableOK = await tableStatus(db, { projects: true });
-        if (!tableOK) throw new Error("Table creation or reading error");
+        if (!tableOK) throw new Error("Table creation or reading error in getProjects");
 
         const result: Project[] = await db.select("SELECT * FROM project");
         return result;
     } catch (error) {
         makeToast({
             type: "error",
-            message: "Database operation error encountered",
+            message: "Database operation error encountered in getProjects",
         });
         console.error('Database error:', error);
 
@@ -71,8 +80,13 @@ export const getProjectById = async (
         const tableOK = await tableStatus(db, { projects: true });
         if (!tableOK) throw new Error("Table creation or reading error");
 
-        const result: Project[] = await db.select("SELECT * FROM project WHERE id=?", [id]);
-        return result[0] ?? null;
+        const project: Project[] = await db.select("SELECT * FROM project WHERE id=?", [id]);
+        if (!project) return null;
+        const config: ProjectConfig[] = await db.select("SELECT * FROM project_config WHERE id=?", [project[0].id]);
+
+        project[0].project_config = config[0];
+
+        return project[0];
     } catch (error) {
         makeToast({
             type: "error",
@@ -108,17 +122,54 @@ export const updateProject = async (
     }
 };
 
-export const deleteProject = async (
+export const updateProjectConfig = async (
     db: Database | null,
-    id: number
+    project_id: number,
+    update_data: {
+        autosave: 0 | 1,
+        pixel_size: number,
+        last_selected_colour: string,
+        grid_lines_view: 0 | 1,
+        last_selected_tool: "pen" | "bucket" | "eraser",
+        undo_stack: string[][][],
+        redo_stack: string[][][]
+    }
 ) => {
-    if (!db || !id) return;
+    if (!db || !project_id) return;
 
     try {
-        const tableOK = await tableStatus(db, { projects: true });
+        const tableOK = await tableStatus(db, { project_config: true });
         if (!tableOK) throw new Error("Table creation or reading error");
 
-        await db.execute("DELETE FROM project WHERE id=?", [id])
+        const { autosave, pixel_size, last_selected_colour, grid_lines_view, last_selected_tool: last_selected_tool, undo_stack, redo_stack } = update_data;
+        const undo_stack_str = JSON.stringify(undo_stack);
+        const redo_stack_str = JSON.stringify(redo_stack);
+
+        await db.execute(
+            "UPDATE project_config SET autosave=?, pixel_size=?, last_selected_colour=?, grid_lines_view=?, last_selected_tool=?, undo_stack=?, redo_stack=? WHERE project_id=?;",
+            [autosave, pixel_size, last_selected_colour, grid_lines_view, last_selected_tool, undo_stack_str, redo_stack_str, project_id]
+        );
+    } catch (error) {
+        makeToast({
+            type: "error",
+            message: "Database operation error encountered",
+        });
+        console.error('Database error:', error);
+    }
+};
+
+export const deleteProject = async (
+    db: Database | null,
+    project_id: number
+) => {
+    if (!db || !project_id) return;
+
+    try {
+        const tableOK = await tableStatus(db, { projects: true, project_config: true });
+        if (!tableOK) throw new Error("Table creation or reading error");
+
+        await db.execute("DELETE FROM project WHERE id=?", [project_id])
+        await db.execute("DELETE FROM project_config WHERE project_id=?", [project_id])
     } catch (error) {
         makeToast({
             type: "error",

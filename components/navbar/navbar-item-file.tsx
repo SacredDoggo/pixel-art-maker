@@ -8,9 +8,17 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { Item } from "./menu-item-component";
 import { useProjectStore } from "@/store/project-store";
+import { useDatabase } from "@/hooks/use-database";
+import { softwareStateChanged } from "@/lib/utils";
 
 export const NavbarItemFile = () => {
     const ps = useProjectStore();
+    const db = useDatabase();
+
+    const handleCloseProject = () => {
+        ps.resetProjectStore();
+        softwareStateChanged(db);
+    }
 
     return (
         <DropdownMenu>
@@ -33,7 +41,7 @@ export const NavbarItemFile = () => {
                     />
                     <Item
                         label="Close Project"
-                        handleClick={ps.resetProjectStore}
+                        handleClick={handleCloseProject}
                     />
                 </DropdownMenuContent>
             </DropdownMenuPortal>
