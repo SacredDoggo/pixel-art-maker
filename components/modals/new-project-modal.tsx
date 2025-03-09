@@ -23,8 +23,16 @@ export const NewProjectModal = () => {
     const [canvasHeight, setCanvasHeight] = useState<number | string>("");
     const [canvasWidth, setCanvasWidth] = useState<number | string>("");
 
+    // Reset the states
+    const resetStates = () => {
+        setProjectName("");
+        setCanvasHeight("");
+        setCanvasWidth("");
+    }
+
     // Close the new project modal 
     const handleClose = () => {
+        resetStates();
         ps.closeNewProjectModal();
     };
 
